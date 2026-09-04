@@ -4,38 +4,86 @@ description: Cost management guidelines and AWS budget alerts
 trigger: always_on
 ---
 
-# VPN Server Cost Documentation
+# Cost Documentation
 
-## Cost Breakdown
+All prices below are `us-east-1` on-demand list prices. They are a planning aid, not a
+quote — check the AWS pricing pages for your region before relying on them.
 
-| Component | Cost Description (how it gets charged) | Base Charge |
+## What Actually Bills
+
+Only three resources cost money on a per-hour basis. Everything else is either free or
+priced per-request at volumes a personal VPN never reaches.
+
+| Component | How it bills | Rate |
 | :--- | :--- | :--- |
-| **VPC & Subnets** | N/A | N/A |
-| **Internet Gateway** | N/A | N/A |
-| **Route Tables** | N/A | N/A |
-| **Security Groups** | N/A | N/A |
-| **WireGuard Software** | N/A | N/A |
-| **EC2 Instance (Compute)** | Charged per second while running, based on the chosen instance type (e.g., `t3.nano` or `t3.micro`). | ~$0.0052 per hour (e.g., `t3.nano` in us-east-1) |
-| **EBS Volume (Storage)** | Charged per GB-month of provisioned storage for the EC2 instance's root disk. | ~$0.08 per GB-month (gp3 storage) |
-| **Elastic IP / Public IPv4** | Charged per hour for the allocated public IPv4 address associated with the VPN server. | $0.005 per IP per hour |
-| **Data Transfer (Outbound)** | Charged per GB of data transferred out from the EC2 instance to the internet (client internet traffic). | $0.09 per GB (First 100 GB/month free) |
+| **EC2 instance** | Per second while running | `t3.micro` ~$0.0104/hr, `t3.nano` ~$0.0052/hr |
+| **EBS root volume** | Per GB-month provisioned | ~$0.08 per GB-month (gp3) |
+| **Elastic IP** | Per hour, allocated or not | $0.005/hr per public IPv4 |
+| **Outbound data transfer** | Per GB out to the internet | $0.09/GB after the first 100 GB/month |
 
-## Estimated Fixed Monthly Cost (24x7 Uptime)
+The Elastic IP is the one to watch: AWS bills it whether or not it is attached to a
+running instance, which is why disabling a region must release it rather than leave it
+allocated.
 
-If the VPN server is left running continuously (approx. 730 hours/month) with an 8 GB root volume, the baseline monthly cost in `us-east-1` would be roughly:
+## Free or Effectively Free
 
-- **EC2 Instance (`t3.nano`)**: ~$3.80
-- **EBS Volume (8 GB `gp3`)**: ~$0.64
-- **Elastic IP (Public IPv4)**: ~$3.65
-- **Total Fixed Cost**: **~$8.09 / month**
+| Component | Why it rounds to zero |
+| :--- | :--- |
+| VPC, subnet, IGW, route tables, security groups | No charge |
+| **Cognito** | One admin user is far below the free monthly-active-user allowance |
+| **API Gateway** (HTTP API) | $1.00/million requests; admin usage is a handful per session |
+| **Lambda** | 1M requests and 400,000 GB-seconds free every month, permanently |
+| **DynamoDB** (on-demand) | 25 GB storage free; the instance sync scans every 10 min (~4,300/month), well under a cent |
+| **CloudWatch Logs** | 5 GB/month ingestion free; 30-day retention keeps stored volume tiny |
+| **CloudWatch dashboard** | First 3 dashboards free — see the caveat below |
+| **CloudWatch custom metrics** | The agent publishes `mem_used_percent`; the first 10 custom metrics are free |
+| **S3** (web app + state) | A few MB of static assets and state; pennies per month at most |
+| **SSM Parameter Store** | Standard-tier parameters are free |
+| **AWS Budgets** | First two budgets are free |
+| **EBS encryption** | The AWS-managed `aws/ebs` key carries no monthly key charge |
 
-*Note: This total excludes Outbound Data Transfer, which is highly variable based on client internet usage (though the first 100 GB/month is free).*
+**Dashboard caveat:** each active region provisions its own CloudWatch dashboard. Past
+three dashboards in the account, AWS charges $3.00/month each — enough to matter at this
+budget, so factor it in beyond two regions.
 
-## Cost Management & Alerts
+## Monthly Estimates (one region, 730 hours)
 
-To prevent unexpected spikes in cost (primarily due to variable Outbound Data Transfer), a global **AWS Budget** is provisioned automatically alongside the infrastructure via Terraform.
+| Scenario | EC2 | EBS (8 GB gp3) | Elastic IP | **Total** |
+| :--- | ---: | ---: | ---: | ---: |
+| `t3.micro` (default) | $7.59 | $0.64 | $3.65 | **~$11.88** |
+| `t3.nano` (cheapest) | $3.80 | $0.64 | $3.65 | **~$8.09** |
+| Region disabled | $0.00 | $0.00 | $0.00 | **$0.00** |
 
-- **Threshold Monitoring:** The budget tracks the total combined cost of the VPN infrastructure across all AWS regions.
-- **Alerting Mechanism:** If actual or forecasted monthly spending exceeds the configured safety threshold of **$25.00**, an automated email alert is immediately dispatched to the administrator's email address.
-- **Security & Privacy:** The alert email address is injected into Terraform dynamically via a secure variable during deployment. It is strictly excluded from version control to protect personal information.
-- **Budget Cost:** $0.00 (AWS provides the first two active budgets for free).
+Excludes outbound data transfer, which is usage-dependent — the first 100 GB/month is
+free, and every GB after that is $0.09.
+
+`instance_type` and `root_volume_size` are variables, so moving between the first two
+rows is a one-line change in `terraform.tfvars` followed by an instance replacement.
+
+Accounts still inside the legacy 12-month AWS Free Tier get 750 hours/month of
+`t3.micro`, 30 GB of EBS, and 750 hours of public IPv4, which brings year-one cost close
+to zero. Accounts opened after the 2025 free-tier change receive credits instead. Confirm
+against the current AWS Free Tier page rather than assuming either.
+
+## Multi-Region Cost
+
+Cost scales linearly per active region — there is no shared always-on component, no load
+balancer, and no global accelerator. Two regions running `t3.nano` cost roughly $16/month;
+turning one off returns to roughly $8/month on the next `terraform apply`.
+
+## Budget Alerts
+
+A global **AWS Budget** is provisioned by Terraform alongside the infrastructure.
+
+- **Scope:** filters on the `user:Project$vpn-server` cost allocation tag, so it tracks the
+  VPN across every region and ignores unrelated workloads in the account.
+- **Threshold:** $25.00/month, alerting on both **actual** and **forecasted** spend at 100%.
+- **Delivery:** email to `budget_alert_email`, injected via a gitignored `terraform.tfvars`
+  so no personal address is committed.
+- **Cost:** $0.00 — AWS provides the first two budgets free.
+
+The threshold is deliberately well above the ~$12 baseline: its job is to catch runaway
+outbound data transfer, not to alarm on normal operation.
+
+> Cost allocation tags must be activated once in **Billing → Cost allocation tags** before
+> the `Project` filter returns data. Until then the budget reports $0 regardless of spend.

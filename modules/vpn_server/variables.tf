@@ -12,6 +12,18 @@ variable "subnet_cidr" {
   default = "10.0.1.0/24"
 }
 
+variable "instance_type" {
+  description = "EC2 instance type for the VPN server. t3.micro is free-tier eligible; t3.nano is the cheapest steady-state option."
+  type        = string
+  default     = "t3.micro"
+}
+
+variable "root_volume_size" {
+  description = "Size in GB of the EC2 root volume. WireGuard and the CloudWatch agent fit comfortably in 8 GB."
+  type        = number
+  default     = 8
+}
+
 
 variable "admin_email" {
   type      = string

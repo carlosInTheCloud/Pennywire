@@ -1,7 +1,7 @@
 resource "aws_apigatewayv2_api" "vpn_api" {
   name          = "vpn-api-${var.aws_region}"
   protocol_type = "HTTP"
-  
+
   cors_configuration {
     allow_origins = ["https://${aws_s3_bucket.webapp.bucket_regional_domain_name}"]
     allow_methods = ["GET", "POST", "OPTIONS", "DELETE"]
@@ -33,7 +33,7 @@ resource "aws_apigatewayv2_route" "get_clients" {
   api_id    = aws_apigatewayv2_api.vpn_api.id
   route_key = "GET /clients"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
-  
+
   authorization_type = "JWT"
   authorizer_id      = aws_apigatewayv2_authorizer.cognito.id
 }
@@ -42,7 +42,7 @@ resource "aws_apigatewayv2_route" "post_clients" {
   api_id    = aws_apigatewayv2_api.vpn_api.id
   route_key = "POST /clients"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
-  
+
   authorization_type = "JWT"
   authorizer_id      = aws_apigatewayv2_authorizer.cognito.id
 }
@@ -51,7 +51,7 @@ resource "aws_apigatewayv2_route" "delete_clients" {
   api_id    = aws_apigatewayv2_api.vpn_api.id
   route_key = "DELETE /clients/{proxy+}"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
-  
+
   authorization_type = "JWT"
   authorizer_id      = aws_apigatewayv2_authorizer.cognito.id
 }

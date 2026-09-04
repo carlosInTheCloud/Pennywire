@@ -35,7 +35,7 @@ The infrastructure will be defined, provisioned, and managed entirely through **
    - **DynamoDB:** Acts as the central source of truth for active WireGuard client public keys and server endpoint IPs.
    - **API Gateway & Lambda:** Provides a secured REST API for the frontend Web App to issue or revoke client keys.
    - **Cognito:** Secures the API Gateway using JWT authorizers to ensure only authenticated administrators can manage keys.
-   - **Instance Sync Script:** The EC2 instance runs a recurring background script (via `cron`) that polls DynamoDB every minute. It automatically synchronizes the local WireGuard configuration (`wg syncconf`) with the latest peers without dropping existing connections.
+   - **Instance Sync Script:** The EC2 instance runs a recurring background script (via `cron`) that polls DynamoDB every 10 minutes. It automatically synchronizes the local WireGuard configuration (`wg syncconf`) with the latest peers without dropping existing connections.
 
 ## High Availability (HA) & Disaster Recovery
 
@@ -120,7 +120,7 @@ flowchart TD
     Lambda -->|4. Read/Write| DynamoDB
     
     EC2 -->|5. Fetch Server Key| SSM
-    EC2 -->|6. Cron Sync (1 min)| DynamoDB
+    EC2 -->|6. Cron Sync (10 min)| DynamoDB
     
     VPNClient -->|7. UDP 51820 Tunnel| EC2
     EC2 -->|8. NAT Outbound| IGW

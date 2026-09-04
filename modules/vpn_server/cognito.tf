@@ -20,14 +20,14 @@ resource "aws_cognito_user_pool" "admin_pool" {
   }
 
   username_attributes = ["email"]
-  
+
   auto_verified_attributes = ["email"]
 }
 
 resource "aws_cognito_user_pool_client" "webapp_client" {
   name         = "vpn-webapp-client-${var.aws_region}"
   user_pool_id = aws_cognito_user_pool.admin_pool.id
-  
+
   generate_secret = false
   explicit_auth_flows = [
     "ALLOW_USER_PASSWORD_AUTH",
@@ -39,12 +39,12 @@ resource "aws_cognito_user_pool_client" "webapp_client" {
 resource "aws_cognito_user" "admin_user" {
   user_pool_id = aws_cognito_user_pool.admin_pool.id
   username     = var.admin_email
-  
+
   attributes = {
     email          = var.admin_email
     email_verified = true
   }
-  
+
   # For a production deployment, this should be injected securely via a variable
   password = var.admin_initial_password
 

@@ -58,7 +58,7 @@ resource "aws_iam_policy" "vpn_instance_policy" {
           "ssm:GetParameter",
           "ssm:GetParameters"
         ]
-        Effect   = "Allow"
+        Effect = "Allow"
         Resource = [
           aws_ssm_parameter.wireguard_private_key.arn
         ]

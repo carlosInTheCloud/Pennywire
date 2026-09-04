@@ -41,7 +41,7 @@ aws ec2 terminate-instances --instance-ids $INSTANCE_ID
 **What to expect:**
 1. The command will output `Terminating i-xxxxxxxxx...` and show the AWS termination response.
 2. Wait approximately **2 to 3 minutes**.
-3. During this time, the ASG will detect the failure, provision a new `t3.nano` instance, and run the boot sequence.
+3. During this time, the ASG will detect the failure, provision a replacement instance, and run the boot sequence.
 4. Your VPN connections will automatically resume once the new server is online and the Elastic IP is re-attached.
 
 ## 📊 How to Check Logs
