@@ -29,7 +29,7 @@ data "aws_caller_identity" "current" {}
 resource "aws_s3_bucket" "terraform_state" {
   # Bucket names must be globally unique
   bucket = "vpn-server-tfstate-${data.aws_caller_identity.current.account_id}"
-  
+
   # Prevent accidental deletion of this S3 bucket
   lifecycle {
     prevent_destroy = true

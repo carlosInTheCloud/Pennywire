@@ -10,6 +10,18 @@ variable "deploy_us_east_1" {
   default     = false
 }
 
+variable "instance_type" {
+  description = "EC2 instance type for the VPN server. t3.micro is free-tier eligible; switch to t3.nano to cut the steady-state bill by about $3.80/month."
+  type        = string
+  default     = "t3.micro"
+}
+
+variable "root_volume_size" {
+  description = "Size in GB of the EC2 root volume."
+  type        = number
+  default     = 8
+}
+
 variable "budget_alert_email" {
   description = "The email address to send AWS budget alerts to"
   type        = string

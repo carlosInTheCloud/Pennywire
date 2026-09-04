@@ -17,7 +17,7 @@ resource "aws_s3_bucket_public_access_block" "webapp_public_access_block" {
 }
 
 resource "aws_s3_bucket_policy" "webapp_policy" {
-  bucket = aws_s3_bucket.webapp.id
+  bucket     = aws_s3_bucket.webapp.id
   depends_on = [aws_s3_bucket_public_access_block.webapp_public_access_block]
 
   policy = jsonencode({
@@ -39,15 +39,20 @@ output "webapp_url" {
   description = "The secure HTTPS URL for the VPN Key Manager Web App"
 }
 
+output "webapp_bucket" {
+  value       = aws_s3_bucket.webapp.bucket
+  description = "Name of the S3 bucket hosting the Key Manager web app"
+}
+
 output "api_url" {
   value       = aws_apigatewayv2_api.vpn_api.api_endpoint
   description = "The HTTP API Gateway URL for the backend"
 }
 
 output "cognito_user_pool_id" {
-  value       = aws_cognito_user_pool.admin_pool.id
+  value = aws_cognito_user_pool.admin_pool.id
 }
 
 output "cognito_client_id" {
-  value       = aws_cognito_user_pool_client.webapp_client.id
+  value = aws_cognito_user_pool_client.webapp_client.id
 }

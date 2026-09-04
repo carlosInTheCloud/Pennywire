@@ -17,10 +17,21 @@ data "aws_ami" "ubuntu" {
 resource "aws_launch_template" "vpn" {
   name_prefix   = "vpn-server-lt-"
   image_id      = data.aws_ami.ubuntu.id
-  instance_type = "t3.micro"
+  instance_type = var.instance_type
 
   iam_instance_profile {
     name = aws_iam_instance_profile.vpn_instance_profile.name
+  }
+
+  block_device_mappings {
+    device_name = data.aws_ami.ubuntu.root_device_name
+
+    ebs {
+      volume_size           = var.root_volume_size
+      volume_type           = "gp3"
+      encrypted             = true
+      delete_on_termination = true
+    }
   }
 
   network_interfaces {
