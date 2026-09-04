@@ -1,4 +1,4 @@
-# pennyWire
+# Pennywire
 
 **A personal WireGuard VPN on AWS that costs about $8–12 a month — and exactly $0 for any region you switch off.**
 
@@ -6,7 +6,7 @@
 [![AWS](https://img.shields.io/badge/AWS-EC2%20%7C%20Lambda%20%7C%20DynamoDB-232F3E?logo=amazonaws&logoColor=white)](https://aws.amazon.com/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](./LICENSE)
 
-pennyWire is a complete, self-hosted VPN you own end to end: Terraform brings up a
+Pennywire is a complete, self-hosted VPN you own end to end: Terraform brings up a
 WireGuard server in any AWS region you enable, a small web app lets you issue and revoke
 client keys from your phone, and an Auto Scaling Group quietly rebuilds the server if it
 ever dies. There is no control plane to pay for, no load balancer, and no always-on
@@ -40,10 +40,10 @@ elegant. [Design Decisions](#design-decisions) explains what got cut and why.
 
 ## Why self-host
 
-At roughly $8–12/month, pennyWire lands in the same price range as a commercial VPN
+At roughly $8–12/month, Pennywire lands in the same price range as a commercial VPN
 subscription, so the case for it isn't purely financial:
 
-| | pennyWire | Commercial VPN |
+| | Pennywire | Commercial VPN |
 | :--- | :--- | :--- |
 | **Monthly cost** | ~$8–12 per active region, $0 when off | ~$5–12 flat |
 | **IP address** | Dedicated, yours alone | Shared with thousands of users |
@@ -155,7 +155,7 @@ cent); Cognito for a single admin; SSM Parameter Store; the first 5 GB/month of 
 Logs ingestion; the S3 buckets; and the budget itself.
 
 Two caveats worth knowing before you scale up. CloudWatch gives you **three free
-dashboards** and pennyWire creates one per region, so past three active regions you pay
+dashboards** and Pennywire creates one per region, so past three active regions you pay
 $3/month each. And the **Elastic IP bills whether or not it is attached**, which is
 precisely why disabling a region releases it instead of parking it.
 
@@ -315,7 +315,7 @@ terraform apply
 
 Turning a region **off** destroys every resource in it — instance, volume, VPC, and
 critically the Elastic IP — so it stops costing anything at all. This is the difference
-between "shut down the instance" (still ~$3.65/month for the idle IP) and what pennyWire
+between "shut down the instance" (still ~$3.65/month for the idle IP) and what Pennywire
 does (genuinely $0.00). Turning it back on gives you a working endpoint in about two
 minutes, though on a **new** IP address, so clients need an updated config.
 
@@ -367,8 +367,11 @@ More in [Observability & Troubleshooting](./.agents/rules/observability.md).
 server's private key lives in SSM Parameter Store as an encrypted `SecureString` and is
 fetched at boot, never committed. Client private keys are generated in the browser and are
 never transmitted or stored. The admin API sits behind a Cognito JWT authorizer with **TOTP
-MFA required**. The EBS root volume is encrypted. Secrets stay in gitignored
-`terraform.tfvars` and `.env` files, and Terraform state is encrypted at rest.
+MFA required**, and its CORS policy is pinned to the web app's own origin rather than a
+wildcard. Instance metadata requires IMDSv2 tokens with a hop limit of 1, so a
+server-side request forgery bug can't be used to steal the instance role's credentials.
+The EBS root volume is encrypted. Secrets stay in gitignored `terraform.tfvars` and `.env`
+files, and Terraform state is encrypted at rest.
 
 **Known trade-offs**, stated plainly because they're the kind of thing you should decide
 on rather than discover:
@@ -376,12 +379,10 @@ on rather than discover:
 - The web app's S3 bucket is **public-read** static hosting. Only compiled assets live
   there — no secrets — but there is no CloudFront distribution or origin access control in
   front of it, and no custom domain.
-- The API's CORS policy allows all origins. The JWT authorizer is what actually protects
-  it; requests without a valid Cognito token are rejected.
 - The admin's initial password is passed as a Terraform variable and lands in state. Change
   it on first sign-in, which is enforced anyway.
 
-**What this is not.** pennyWire is a private tunnel, not an anonymity tool. Traffic exits
+**What this is not.** Pennywire is a private tunnel, not an anonymity tool. Traffic exits
 from an Elastic IP registered to your AWS account, and AWS retains its own operational
 records. It defends against untrusted local networks and ISP-level snooping. It does not
 make you anonymous, and it is a poor choice for evading geo-restrictions.
