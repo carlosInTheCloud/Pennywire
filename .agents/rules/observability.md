@@ -37,7 +37,7 @@ A custom **CloudWatch Dashboard** is provisioned automatically via Terraform. Th
 
 ### Available Dashboard Metrics
 - **Network In / Out (Bytes):** Critical for a VPN server to monitor client data transfer and identify bandwidth spikes.
-- **CPU Utilization:** To ensure the `t3.nano` instance has sufficient compute capacity for encryption overhead.
+- **CPU Utilization:** To ensure the instance has sufficient compute capacity for encryption overhead.
 - **Status Check Failed:** To monitor hardware or network impairments at the AWS infrastructure level.
 
 ### How to View the Dashboard

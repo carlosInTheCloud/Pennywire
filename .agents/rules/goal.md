@@ -14,4 +14,4 @@ Key constraints and deliverables include:
 - **Infrastructure as Code (IaC):** The entire lifecycle of the server, from networking to compute provisioning, must be managed entirely via Terraform.
 - **High Availability (HA):** The architecture must be "self-healing," capable of surviving the failure of an underlying EC2 instance without manual intervention, while adhering to strict cost limits.
 - **Multi-Region Support:** The Terraform configuration must support on-demand, multi-region deployments via modular feature flags, ensuring that idle regions do not accumulate passive costs (e.g., unattached Elastic IPs).
-- **Cost Optimization:** The core components should rely on free-tier eligible or extremely low-cost AWS resources (like `t3.nano` instances), targeting a baseline fixed cost of under $10/month per active region.
+- **Cost Optimization:** The core components should rely on free-tier eligible or extremely low-cost AWS resources. The default is a free-tier eligible `t3.micro` (~$11.88/month at list price); switching `instance_type` to `t3.nano` meets the stretch target of under $10/month per active region.
