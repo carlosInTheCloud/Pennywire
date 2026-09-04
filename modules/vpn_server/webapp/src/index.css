@@ -1,0 +1,32 @@
+body {
+  margin: 0;
+  background-color: #1b1c1d !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.glass-segment {
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1) !important;
+}
+
+.amplify-authenticator {
+  --amplify-colors-background-primary: #1b1c1d;
+  --amplify-colors-background-secondary: #242526;
+  --amplify-colors-font-primary: rgba(255, 255, 255, 0.9);
+  --amplify-colors-brand-primary-80: #2185d0;
+  --amplify-components-tabs-item-active-color: #2185d0;
+  --amplify-components-tabs-item-active-border-color: #2185d0;
+}

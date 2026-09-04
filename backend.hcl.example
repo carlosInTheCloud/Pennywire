@@ -1,0 +1,3 @@
+bucket = "vpn-server-tfstate-<your-account-id>"
+region = "us-east-1"
+# profile = "<your-sso-profile-name>"   # only if not using AWS_PROFILE

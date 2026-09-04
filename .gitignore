@@ -1,0 +1,47 @@
+# MAC OS
+**/.DS_Store
+
+# Tests
+*.test
+**/*_mock_teat.go
+
+# IDE
+.vscode/
+
+# Temp files
+**/tmp
+
+# Dependencies
+*/vendor
+
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+*.zip
+*tfplan*
+
+# WireGuard Keys
+*_private_key*
+*_public_key*
+
+# Local Documentation
+walkthrough.md
+
+# Client VPN Configurations
+*.conf
+
+cleanup_vpn.md
+cleanup_vpn_implementation_plan.md
+backend.hcl
+.env
+.env.production
+.env.development

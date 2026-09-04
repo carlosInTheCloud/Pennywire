@@ -1,0 +1,23 @@
+# Copy to terraform.tfvars and fill in your own values.
+# terraform.tfvars is gitignored so nothing personal is committed.
+
+aws_region       = "us-east-1"
+deploy_us_east_1 = true
+
+# Optional: named AWS CLI/SSO profile. Omit to use AWS_PROFILE or the default chain.
+# aws_profile = "<your-sso-profile-name>"
+
+owner_tag = "vpn-admin"
+
+# Email that receives budget alerts and signs in to the key manager web app.
+budget_alert_email = "you@example.com"
+admin_email        = "you@example.com"
+
+# Temporary Cognito password. Change it on first sign-in; later applies ignore it.
+admin_initial_password = "ChangeMe_OnFirstLogin_123!"
+
+# WireGuard server private key (generate with `wg genkey`).
+wireguard_private_key = ""
+
+# Comma-separated WireGuard client public keys.
+client_public_keys = ""

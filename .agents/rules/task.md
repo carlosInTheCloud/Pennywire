@@ -1,0 +1,21 @@
+# Tasks
+
+- `[x]` Phase 1: AWS Serverless Infrastructure
+  - `[x]` `dynamodb.tf` (Client state table)
+  - `[x]` `cognito.tf` (User pool & client)
+  - `[x]` `lambda.tf` (Node.js API handler)
+  - `[x]` `apigateway.tf` (HTTP API + Cognito Authorizer)
+  - `[x]` `s3.tf` (Static hosting bucket)
+  - `[x]` `cloudfront.tf` (CDN for HTTPS)
+- `[x]` Phase 2: EC2 Synchronization
+  - `[x]` Update `security.tf` (DynamoDB permissions)
+  - `[x]` Update `userdata.sh` (Sync daemon cron job)
+- `[x]` Phase 3: The React Web Application
+  - `[x]` Scaffold Vite React App
+  - `[x]` Install Semantic UI React (Dark Mode)
+  - `[x]` Integrate AWS Amplify Authenticator
+  - `[x]` Build Key Management Dashboard
+- `[ ]` Deployment & Verification
+  - `[ ]` Run `terraform apply`
+  - `[ ]` Build & Sync React App to S3
+  - `[ ]` Verify CloudFront URL & Login
